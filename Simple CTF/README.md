@@ -1,4 +1,5 @@
-Here store the write up for simple CTF boxes on THM
+Here lies the write up for simple CTF boxes on THM
+
 Read the WriteUp.txt file to see the tutorial, other files is supporting wordlist and script that i use to solve the box
 
 Nmap: scaning result is in Scanning_port file
